@@ -1,3 +1,10 @@
-.green {
-  color: green;
+html {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: rgb(29, 29, 29);
+}
+
+button {
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
 }

@@ -1,6 +1,6 @@
-import TodoList from "./components/TodoList";
+import TodoList from "./components/TodoList/TodoList";
 import "./main.css";
 
 const [fragment, unsubs] = TodoList();
 
-document.querySelector("#app").appendChild(fragment);
+document.querySelector("body").firstChild.before(fragment);
