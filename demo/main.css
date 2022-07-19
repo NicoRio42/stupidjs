@@ -7,4 +7,9 @@ button {
   border: none;
   cursor: pointer;
   padding: 0.5rem 1rem;
+  margin: 0.25rem 0.5rem;
+}
+
+input {
+  padding: 0.4rem;
 }

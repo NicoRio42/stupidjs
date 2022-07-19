@@ -33,7 +33,7 @@ const TodoList = () => {
   return html`
     <main>
       <h1>Todo list</h1>
-      <p class="subtitle">Powered by STUPIJS</p>
+      <p class="subtitle">Powered by StupidJS</p>
 
       <form onsubmit=${addItem} class="add-item-form">
         <input oninput=${(e) => (newItem = e.target.value)} />
