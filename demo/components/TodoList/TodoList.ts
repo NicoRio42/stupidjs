@@ -1,12 +1,11 @@
 import html from "../../../lib/html/html";
-import { Component } from "../../../lib/html/models/html";
 import For from "../../../lib/logic/For";
 import createArrayState from "../../../lib/reactivity/create-array-state";
 import { createState } from "../../../lib/reactivity/create-state";
 import TodoRowItem from "../TodoRowItem/TodoRowItem";
 import "./TodoList.css";
 
-const TodoList = (): Component => {
+const TodoList = () => {
   const todos = createArrayState(
     ["Do something", "Do something else", "Fix this bug"].map(
       (description) => ({
@@ -16,19 +15,21 @@ const TodoList = (): Component => {
     )
   );
 
-  let newItem = "";
+  let newItem = createState("");
 
   const addItem = (e: SubmitEvent): void => {
     e.preventDefault();
 
-    if (newItem === "") {
+    if (newItem() === "") {
       return;
     }
 
-    todos.splice(todos().length, 0, {
-      description: newItem,
+    todos.push({
+      description: newItem(),
       done: createState(false),
     });
+
+    newItem.set("");
   };
 
   return html`
@@ -37,7 +38,11 @@ const TodoList = (): Component => {
       <p class="subtitle">Powered by StupidJS</p>
 
       <form onsubmit=${addItem} class="add-item-form">
-        <input oninput=${(e) => (newItem = e.target.value)} />
+        <input
+          value=${newItem}
+          oninput=${(e: InputEvent) =>
+            newItem.set((e.target as HTMLInputElement).value)}
+        />
 
         <button type="submit">Add new item</button>
       </form>

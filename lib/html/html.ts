@@ -138,26 +138,24 @@ const handleAttributes = (
       strings[reactiveContentIndex[0]]
     );
 
-    if (attribute.startsWith("on")) {
-      node[attribute] = reactiveContents[reactiveContentIndex[0]];
-    } else if (attribute === "classList") {
-      handleClassList(
-        node,
-        reactiveContents[reactiveContentIndex[0]] as ClassListObject,
-        unsubs
-      );
-    } else if (attribute === "style") {
-      handleStyles(
-        node,
-        reactiveContents[reactiveContentIndex[0]] as StyleObject,
-        unsubs
-      );
-    } else {
-      const callback = reactiveContents[reactiveContentIndex[0]] as Function;
+    const reactiveContent = reactiveContents[reactiveContentIndex[0]];
 
+    if (attribute.startsWith("on")) {
+      node[attribute] = reactiveContent;
+    } else if (attribute === "classList") {
+      handleClassList(node, reactiveContent as ClassListObject, unsubs);
+    } else if (attribute === "style") {
+      handleStyles(node, reactiveContent as StyleObject, unsubs);
+    } else if (attribute === "value") {
       unsubs.concat(
         subscribe(() => {
-          node.setAttribute(attribute, callback());
+          node[attribute] = (reactiveContent as Function)();
+        })
+      );
+    } else {
+      unsubs.concat(
+        subscribe(() => {
+          node.setAttribute(attribute, (reactiveContent as Function)());
         })
       );
     }
