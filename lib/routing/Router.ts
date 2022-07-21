@@ -1,17 +1,18 @@
 import { createState } from "../reactivity/create-state";
+import { Route } from "./models/router";
 import { onPopState } from "./onpopstate";
 
-const Router = (routes) => {
+const Router = (routes: Route[]): [DocumentFragment, Function[]] => {
   let fragment = document.createDocumentFragment();
-  let unsubs = [];
+  let unsubs: Function[] = [];
 
   const anchor = document.createComment("Router");
   fragment.appendChild(anchor);
 
-  let nodes = [];
-  let currentHref;
+  let nodes: ChildNode[] = [];
+  let currentHref: string;
 
-  const handlePopState = (e) => {
+  const handlePopState = (e: PopStateEvent) => {
     if (currentHref === e.state) {
       return;
     }
@@ -42,7 +43,10 @@ const Router = (routes) => {
   window.addEventListener("popstate", handlePopState);
 
   // Init
-  handlePopState({ state: window.location.pathname });
+  const popStateEvent = new PopStateEvent("popstate", {
+    state: window.location.pathname,
+  });
+  handlePopState(popStateEvent);
 
   // cant return the unsub array directly because it is dynamic
   return [

@@ -1,5 +1,8 @@
 import html from "../lib/html/html";
+import { Component } from "../lib/html/models/html";
+import { State } from "../lib/reactivity/models/state";
 import Link from "../lib/routing/Link";
+import { Route } from "../lib/routing/models/router";
 import route from "../lib/routing/route";
 import Router from "../lib/routing/Router";
 import About from "./components/About";
@@ -7,16 +10,17 @@ import Index from "./components/Index";
 import Post from "./components/Post";
 import TodoList from "./components/TodoList/TodoList";
 
-const App = () => {
-  const routes = [
+const App = (): Component => {
+  const routes: Route[] = [
     [route`/`, Index],
     [route`/about`, About],
     [route`/todo`, TodoList],
     [
       route`/posts/${"slug"}/numberOfViews/${"numberOfViews"}`,
-      (slug, numberOfViews) => Post(slug, numberOfViews),
+      (slug: State<string>, numberOfViews: State<number>) =>
+        Post(slug, numberOfViews),
     ],
-    [route`/posts/${"slug"}`, (slug) => Post(slug)],
+    [route`/posts/${"slug"}`, (slug: State<string>) => Post(slug, undefined)],
   ];
 
   return html`

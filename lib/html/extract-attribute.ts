@@ -1,8 +1,4 @@
-/**
- *
- * @param {string} str
- */
-const extractAttributeNameFromString = (str) => {
+const extractAttributeNameFromString = (str: string): string => {
   const stringArray = str.split(" ");
   const lastString = stringArray[stringArray.length - 1];
 

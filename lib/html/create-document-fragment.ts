@@ -1,9 +1,4 @@
-/**
- *
- * @param {string} str
- * @returns
- */
-const createDocumentFragment = (str) => {
+const createDocumentFragment = (str: string): DocumentFragment => {
   const template = document.createElement("template");
 
   if (!str.includes("<tbody>")) {
@@ -26,12 +21,7 @@ const createDocumentFragment = (str) => {
   return template.content;
 };
 
-/**
- *
- * @param {string} str
- * @returns {[string, string[]]}
- */
-const extractTbodyElementsContent = (str) => {
+const extractTbodyElementsContent = (str: string): [string, string[]] => {
   const array = str.split("<tbody>");
   const arrayLength = array.length;
   const arrayWithTbodyTags = array.map((el, i) =>

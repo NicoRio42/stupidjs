@@ -2,10 +2,13 @@ import { subscribe } from "../reactivity/create-state";
 
 /**
  * A component that add/remove content to/from the DOM given the condition.
- * @param {() => boolean} condition
- * @param {[DocumentFragment, Function[]]} content
+ * @param condition A function that returns a boolean
+ * @param content The result of a html tagged string template
  */
-const If = (condition, content) => {
+const If = (
+  condition: () => boolean,
+  content: [DocumentFragment, Function[]]
+): [DocumentFragment, Function[]] => {
   const [fragment, unsubs] = content;
 
   const nodes = Array.from(fragment.childNodes);
@@ -13,7 +16,7 @@ const If = (condition, content) => {
   const anchor = document.createComment("If");
   fragment.firstChild.before(anchor);
 
-  let previousConditionResult;
+  let previousConditionResult: boolean;
 
   unsubs.concat(
     subscribe(() => {

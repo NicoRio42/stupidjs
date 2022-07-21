@@ -1,11 +1,12 @@
 import html from "../../../lib/html/html";
+import { Component } from "../../../lib/html/models/html";
 import For from "../../../lib/logic/For";
 import createArrayState from "../../../lib/reactivity/create-array-state";
 import { createState } from "../../../lib/reactivity/create-state";
 import TodoRowItem from "../TodoRowItem/TodoRowItem";
 import "./TodoList.css";
 
-const TodoList = () => {
+const TodoList = (): Component => {
   const todos = createArrayState(
     ["Do something", "Do something else", "Fix this bug"].map(
       (description) => ({
@@ -17,7 +18,7 @@ const TodoList = () => {
 
   let newItem = "";
 
-  const addItem = (e) => {
+  const addItem = (e: SubmitEvent): void => {
     e.preventDefault();
 
     if (newItem === "") {

@@ -1,16 +1,32 @@
 import { createState } from "../reactivity/create-state";
+import { ArrayState } from "../reactivity/models/array-state";
+import { State } from "../reactivity/models/state";
+import { ForComponentItem } from "./models/for";
 
-const For = (array, component) => {
+/**
+ * A component to iterate on an array state and render a child component for
+ * every item
+ * @param array An array state created with the createArrayState function
+ * @param childComponent A component created with an html tagged string template
+ * It takes two states as arguments: one for the item value, on for the index value
+ */
+const For = <T>(
+  array: ArrayState<T>,
+  childComponent: (
+    arrayItem: State<T>,
+    index: State<number>
+  ) => [DocumentFragment, Function[]]
+) => {
   const fragment = document.createDocumentFragment();
-  const unsubs = [];
-  const itemsNodes = [];
+  const unsubs: Function[] = [];
+  const itemsNodes: ForComponentItem<T>[] = [];
 
   const anchor = document.createComment("For");
   fragment.appendChild(anchor);
 
   array().forEach((arrayItem, i) => {
     const index = createState(i); // TODO: don't create a state if index is not used
-    const [itemFragment, unsubscribtions] = component(arrayItem, index);
+    const [itemFragment, unsubscribtions] = childComponent(arrayItem, index);
 
     itemsNodes.push({
       item: arrayItem,
@@ -26,22 +42,27 @@ const For = (array, component) => {
     itemsNodes.forEach((node) => node.unsubs.forEach((unsub) => unsub()))
   );
 
-  const splice = (start, deleteCount, ...itemsToAdd) => {
+  const splice = (
+    start: number,
+    deleteCount: number,
+    ...itemsToAdd: State<T>[]
+  ) => {
     for (let i = start; i < start + deleteCount; i++) {
       itemsNodes[i].nodes.forEach((node) => node.remove());
       itemsNodes[i].unsubs.forEach((unsub) => unsub());
     }
 
-    let anchorNode = start === 0 ? anchor : itemsNodes[start - 1].nodes.at(-1);
+    let startingNode =
+      start === 0 ? anchor : itemsNodes[start - 1].nodes.at(-1);
 
     const itemsNodesToAdd = itemsToAdd.map((itemToAdd, i) => {
       const index = createState(i + start); // TODO: don't create a state if index is not used
-      const [itemFragment, unsubscribtions] = component(itemToAdd, index);
+      const [itemFragment, unsubscribtions] = childComponent(itemToAdd, index);
 
       const nodes = Array.from(itemFragment.childNodes);
 
-      anchorNode.after(itemFragment);
-      anchorNode = nodes.at(-1);
+      startingNode.after(itemFragment);
+      startingNode = nodes.at(-1);
 
       return {
         item: itemToAdd,
