@@ -39,6 +39,18 @@ const createArrayState = <T>(array: T[]): ArrayState<T> => {
     reactiveArray.push(reactiveItemToAdd);
   };
 
+  get.pop = (): T => {
+    if (reactiveArray.length === 0) {
+      return;
+    }
+
+    forComponentsModifiers.forEach((forElement) =>
+      forElement.splice(reactiveArray.length - 1, 1)
+    );
+
+    return reactiveArray.pop()();
+  };
+
   get.set = (newArray: T[]): void => {
     const newReactiveArray: State<T>[] = newArray.map((newItem, i) =>
       reactiveArray[i] !== undefined && newItem === reactiveArray[i]()

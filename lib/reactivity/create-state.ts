@@ -14,7 +14,7 @@ export const createState = <T>(initialValue: T): State<T> => {
 
   const get = (): T => {
     if (context.length !== 0) {
-      const currentCallback = context[0];
+      const currentCallback = context.at(-1) as Function;
       subs.add(currentCallback);
       unsubs.push(() => subs.delete(currentCallback));
     }

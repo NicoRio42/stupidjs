@@ -2,14 +2,16 @@ import html from "../../../lib/html/html";
 import For from "../../../lib/logic/For";
 import createArrayState from "../../../lib/reactivity/create-array-state";
 import { createState } from "../../../lib/reactivity/create-state";
+import { ArrayState } from "../../../lib/reactivity/models/array-state";
+import { Todo } from "../models/todo";
 import TodoRowItem from "../TodoRowItem/TodoRowItem";
 import "./TodoList.css";
 
 const TodoList = () => {
-  const todos = createArrayState(
+  const todos: ArrayState<Todo> = createArrayState(
     ["Do something", "Do something else", "Fix this bug"].map(
       (description) => ({
-        description,
+        description: createState(description),
         done: createState(false),
       })
     )
@@ -25,7 +27,7 @@ const TodoList = () => {
     }
 
     todos.push({
-      description: newItem(),
+      description: createState(newItem()),
       done: createState(false),
     });
 
@@ -46,6 +48,8 @@ const TodoList = () => {
 
         <button type="submit">Add new item</button>
       </form>
+
+      <button onclick=${() => todos.pop()}>Pop last item</button>
 
       <table class="todos-table">
         <thead>

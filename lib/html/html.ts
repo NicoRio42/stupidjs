@@ -1,4 +1,5 @@
 import { subscribe } from "../reactivity/create-state";
+import { State } from "../reactivity/models/state";
 import createDocumentFragment from "./create-document-fragment";
 import extractAttributeNameFromString from "./extract-attribute";
 import { ClassListObject, Component, StyleObject } from "./models/html";
@@ -10,7 +11,12 @@ const PLACEHOLDER = "$$stupidjs$$";
  */
 const html = (
   strings: TemplateStringsArray,
-  ...reactiveContents: (Function | ClassListObject | StyleObject)[]
+  ...reactiveContents: (
+    | Function
+    | ClassListObject
+    | StyleObject
+    | State<unknown>
+  )[]
 ): Component => {
   const unsubs: Function[] = [];
   // To pass the index's reference the handlers
@@ -32,7 +38,12 @@ const html = (
 const handleNode = (
   node: ChildNode,
   strings: TemplateStringsArray,
-  reactiveContents: (Function | ClassListObject | StyleObject)[],
+  reactiveContents: (
+    | Function
+    | ClassListObject
+    | StyleObject
+    | State<unknown>
+  )[],
   reactiveContentIndex: [number],
   unsubs: Function[]
 ): void => {
@@ -122,14 +133,18 @@ const handleTextNode = (
 const handleAttributes = (
   node: HTMLElement,
   strings: TemplateStringsArray,
-  reactiveContents: (Function | ClassListObject | StyleObject)[],
+  reactiveContents: (
+    | Function
+    | ClassListObject
+    | StyleObject
+    | State<unknown>
+  )[],
   reactiveContentIndex: [number],
   unsubs: Function[]
 ): void => {
-  const a = Array.from(node.attributes).filter(
+  const numberOfReactiveAttributes = Array.from(node.attributes).filter(
     (attribute) => attribute.value === PLACEHOLDER
-  );
-  const numberOfReactiveAttributes = a.length;
+  ).length;
 
   // We have to re-extract the attribute names from the string because the order
   // of node.attributes might not be the same than in our markup
@@ -152,6 +167,8 @@ const handleAttributes = (
           node[attribute] = (reactiveContent as Function)();
         })
       );
+    } else if (attribute === "ref") {
+      (reactiveContent as State<unknown>).set(node);
     } else {
       unsubs.concat(
         subscribe(() => {

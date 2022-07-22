@@ -1,3 +1,4 @@
+import { Component } from "../html/models/html";
 import { subscribe } from "../reactivity/create-state";
 
 /**
@@ -7,42 +8,51 @@ import { subscribe } from "../reactivity/create-state";
  */
 const If = (
   condition: () => boolean,
-  content: [DocumentFragment, Function[]]
-): [DocumentFragment, Function[]] => {
-  const [fragment, unsubs] = content;
-
-  const nodes = Array.from(fragment.childNodes);
-
+  content: () => Component,
+  fallback?: () => Component
+): Component => {
+  const fragment = document.createDocumentFragment();
   const anchor = document.createComment("If");
-  fragment.firstChild.before(anchor);
+  fragment.append(anchor);
 
+  let currentNodes: ChildNode[] = [];
+  let contentUnsubs: Function[] = [];
   let previousConditionResult: boolean;
 
-  unsubs.concat(
-    subscribe(() => {
-      const newConditionResult = condition();
+  const unsubs = subscribe(() => {
+    const newConditionResult = condition();
 
-      if (previousConditionResult === newConditionResult) {
-        return;
-      }
+    if (previousConditionResult === newConditionResult) {
+      return;
+    }
 
-      previousConditionResult = newConditionResult;
+    previousConditionResult = newConditionResult;
 
-      if (newConditionResult) {
-        const l = nodes.length;
+    currentNodes.forEach((node) => node.remove());
+    contentUnsubs.forEach((unsub) => unsub());
 
-        for (let i = l - 1; i >= 0; i--) {
-          anchor.after(nodes[i]);
-        }
+    if (!newConditionResult && fallback === undefined) {
+      currentNodes = [];
+      contentUnsubs = [];
+      return;
+    }
 
-        return;
-      }
+    const [newFragment, newUnsubs] = newConditionResult
+      ? content()
+      : fallback();
 
-      nodes.forEach((node) => node.remove());
-    })
-  );
+    contentUnsubs = newUnsubs;
+    currentNodes = Array.from(newFragment.childNodes);
+    anchor.after(newFragment);
+  });
 
-  return [fragment, unsubs];
+  return [
+    fragment,
+    [
+      () => unsubs.forEach((unsub) => unsub()),
+      () => contentUnsubs.forEach((unsub) => unsub()),
+    ],
+  ];
 };
 
 export default If;
