@@ -79,12 +79,20 @@ const scopeMarkup = (
   scopeClass: string
 ): void => {
   element.childNodes.forEach((node) => {
-    if (node.nodeType === 1) {
-      (node as HTMLElement).classList.add(scopeClass);
+    if (node.nodeType !== 1) return;
 
-      scopeMarkup(node as HTMLElement, scopeClass);
+    if (!isAllreadyScoped(node)) {
+      (node as HTMLElement).classList.add(scopeClass);
     }
+
+    scopeMarkup(node as HTMLElement, scopeClass);
   });
+};
+
+const isAllreadyScoped = (node: HTMLElement): boolean => {
+  return Array.from((node as HTMLElement).classList).some((className) =>
+    className.startsWith("stupid-")
+  );
 };
 
 const getDocFragmentInnerHTML = (docFragment: DocumentFragment): string => {
