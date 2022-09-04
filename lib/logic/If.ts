@@ -5,6 +5,7 @@ import { subscribe } from "../reactivity/create-state";
  * A component that add/remove content to/from the DOM given the condition.
  * @param condition A function that returns a boolean
  * @param content The result of a html tagged string template
+ * @param fallback The result of a html tagged string template
  */
 const If = (
   condition: () => boolean,

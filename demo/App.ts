@@ -8,7 +8,7 @@ import Router from "../lib/routing/Router";
 import About from "./components/About";
 import Index from "./components/Index";
 import Post from "./components/Post";
-import TodoList from "./components/TodoList/TodoList";
+import TodoList from "./components/TodoList";
 
 const App = (): Component => {
   const routes: Route[] = [
@@ -24,17 +24,21 @@ const App = (): Component => {
   ];
 
   return html`
-    <ul>
-      <li>${() => Link("StupidJS", "/")}</li>
+    <nav>
+      <ul>
+        <li>${() => Link("StupidJS", "/")}</li>
 
-      <li>${() => Link("Todo list", "/todo")}</li>
+        <li>${() => Link("Todo list", "/todo")}</li>
 
-      <li>${() => Link("About", "/about")}</li>
+        <li>${() => Link("About", "/about")}</li>
 
-      <li>${() => Link("Post 1", "/posts/my-first-post")}</li>
+        <li>${() => Link("Post 1", "/posts/my-first-post")}</li>
 
-      <li>${() => Link("Post 2", "/posts/my-second-post/numberOfViews/30")}</li>
-    </ul>
+        <li>
+          ${() => Link("Post 2", "/posts/my-second-post/numberOfViews/30")}
+        </li>
+      </ul>
+    </nav>
 
     ${() => Router(routes)}
   `;

@@ -6,6 +6,6 @@ export interface ArrayState<T> {
   subscribe(forElement: ForComponentModifiers<T>): Function;
   splice(start: number, deleteCount: number, ...itemsToAdd: T[]): void;
   push(itemToAdd: T): void;
-  pop(): T;
+  pop(): T | undefined;
   set(newArray: T[]): void;
 }

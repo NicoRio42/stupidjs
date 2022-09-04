@@ -3,6 +3,7 @@ import { State } from "../reactivity/models/state";
 import createDocumentFragment from "./create-document-fragment";
 import extractAttributeNameFromString from "./extract-attribute";
 import { ClassListObject, Component, StyleObject } from "./models/html";
+import { Reference } from "./models/reference";
 
 const PLACEHOLDER = "$$stupidjs$$";
 
@@ -49,7 +50,7 @@ const handleNode = (
 ): void => {
   if (node.nodeType === 3) {
     handleTextNode(
-      node,
+      node as Text,
       reactiveContents as Function[],
       reactiveContentIndex,
       unsubs
@@ -69,16 +70,20 @@ const handleNode = (
     handleNode(n, strings, reactiveContents, reactiveContentIndex, unsubs)
   );
 };
-
+const t = document.createTextNode("");
 /**
  * Inject reactive text nodes or compoenents into a text node.
  */
 const handleTextNode = (
-  node: ChildNode,
+  node: Text,
   reactiveContents: Function[],
   reactiveContentIndex: [number],
   unsubs: Function[]
 ) => {
+  if (node.textContent === null) {
+    return;
+  }
+
   const contentArray = node.textContent.split(PLACEHOLDER);
 
   const l = contentArray.length;
@@ -155,8 +160,39 @@ const handleAttributes = (
 
     const reactiveContent = reactiveContents[reactiveContentIndex[0]];
 
-    if (attribute.startsWith("on")) {
-      node[attribute] = reactiveContent;
+    if (attribute.startsWith("bind")) {
+      const attributeToBind = attribute.replace("bind:", "");
+
+      if (attributeToBind === "value") {
+        node.oninput = (e) => reactiveContent.set(e.target.value);
+
+        unsubs.concat(
+          subscribe(() => {
+            node[attributeToBind] = (reactiveContent as Function)();
+          })
+        );
+      }
+
+      if (attributeToBind === "checked") {
+        node.oninput = (e) => reactiveContent.set(e.target.checked);
+
+        unsubs.concat(
+          subscribe(() => {
+            node[attributeToBind] = (reactiveContent as Function)();
+          })
+        );
+      }
+    } else if (attribute.startsWith("on")) {
+      if (attribute.includes("|")) {
+        const [event, modifier] = attribute.split("|");
+
+        node[event] = (e) => {
+          e[modifier]();
+          reactiveContent();
+        };
+      } else {
+        node[attribute] = reactiveContent;
+      }
     } else if (attribute === "classList") {
       handleClassList(node, reactiveContent as ClassListObject, unsubs);
     } else if (attribute === "style") {
@@ -168,7 +204,7 @@ const handleAttributes = (
         })
       );
     } else if (attribute === "ref") {
-      (reactiveContent as State<unknown>).set(node);
+      (reactiveContent as Reference<unknown>).set(node);
     } else {
       unsubs.concat(
         subscribe(() => {

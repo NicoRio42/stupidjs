@@ -39,7 +39,7 @@ const createArrayState = <T>(array: T[]): ArrayState<T> => {
     reactiveArray.push(reactiveItemToAdd);
   };
 
-  get.pop = (): T => {
+  get.pop = (): T | undefined => {
     if (reactiveArray.length === 0) {
       return;
     }
